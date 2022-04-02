@@ -1,15 +1,15 @@
 # Linguarcana
 
 import sys
+import math
+# roman module to read nmerals
 import roman
 
 # open file
 src = open( sys.argv[1], "r" )
-
 # identify sections
 whole = "".join( x for x in src )
 sections = whole.split( "\nMense " )
-run = True
 
 # initialize cell array
 cellArr = [0] * 64
@@ -41,7 +41,8 @@ monthLinks = {
 	"Novembre": "",
 	"Decembre": ""
 }
-
+# list for character conversion when printing (and inputting in future)
+#conversion = [ 
 # initialize list
 finContent = []
 
@@ -63,11 +64,29 @@ def Parse( thing ):
 
 # ----------------------------------------------------------------------------- 5 ---
 def Read( line ):
+	# divide in tokens (words)
 	tokens = line.split(" ")
+	# useful variables
 	lenght = len(tokens)
+	firstToken = tokens[0]
+	lastToken = tokens[-1]
 	if " ".join(tokens[-7:-1]) == "Gallia est omnis divisa in partes":
-		divisor = tokens[lenght-1]
+		divisor = lastToken
 		cellArr[I] /= roman.fromRoman( divisor )
+		cellArr[I] = math.floor( cellArr[I] )
+	elif line == "Carthago delenda est":
+		cellArr[I] = 255
+	elif line == "Ipse dixit":
+		print(cellArr[I])
+	elif firstToken == "Incedo":
+		if lastToken == "legionibus":
+			adder = tokens[-2]
+			cellArr[I] += roman.fromRoman( adder )
+			cellArr[I] = cellArr[I] % 255
+		#elif lastToken == SOMETHING ELSE:
+			# move pointer forward
+	#elif firstToken == RETREAT:
+		#legionibus or SOME ELSE?
 
 # ----------------------------------------------------------------------------- 1 ---
 # fill the sections in dictionary with the right content
@@ -91,19 +110,15 @@ for section in months:
 
 # ----------------------------------------------------------------------------- 4 ---
 for line in finContent:
-	if line != "Memento Mori":
+	if line == "Memento Mori":
+		break
+	else:
 		Read( line )
 
 """
-tokens = line.split(" ")
-lastToken = tokens[-1]
-if lastToken == "dixit":
-	print( "print statement" )
 elif lastToken == "est":
 	print( "cell definition" )
 """
-# VARIABLE est omnis divisa in partes NUMBER -> divide
-# ipse dixit ... -> print
 # dum ... -> while
 # aut ... aut ... --> xor
 # condicio sine qua non --> if
