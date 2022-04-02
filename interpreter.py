@@ -1,6 +1,7 @@
 # Linguarcana
 
 import sys
+import roman
 
 # open file
 src = open( sys.argv[1], "r" )
@@ -9,6 +10,11 @@ src = open( sys.argv[1], "r" )
 whole = "".join( x for x in src )
 sections = whole.split( "\nMense " )
 run = True
+
+# initialize cell array
+cellArr = [0] * 64
+# cell pointer
+I = 0
 
 # month sections
 months = {
@@ -39,7 +45,7 @@ monthLinks = {
 # initialize list
 finContent = []
 
-# ----------------------------------------------- 3 ---
+# ----------------------------------------------------------------------------- 3 ---
 # section parsing function
 def Parse( thing ):
 	# modify content removing months
@@ -55,11 +61,15 @@ def Parse( thing ):
 	# save the start and end lines for recursion
 	monthLinks.update({ month: coords })
 
-# ----------------------------------------------- 5 ---
+# ----------------------------------------------------------------------------- 5 ---
 def Read( line ):
-	print( line )
+	tokens = line.split(" ")
+	lenght = len(tokens)
+	if " ".join(tokens[-7:-1]) == "Gallia est omnis divisa in partes":
+		divisor = tokens[lenght-1]
+		cellArr[I] /= roman.fromRoman( divisor )
 
-# ----------------------------------------------- 1 ---
+# ----------------------------------------------------------------------------- 1 ---
 # fill the sections in dictionary with the right content
 n = 0
 for section in sections:
@@ -71,7 +81,7 @@ for section in sections:
 		months.update({ month: section })
 	n += 1
 
-# ----------------------------------------------- 2 ---
+# ----------------------------------------------------------------------------- 2 ---
 for section in months:
 	# consider only non-empty sections
 	# and parse them momentarily
@@ -79,7 +89,7 @@ for section in months:
 	if content != "":
 		Parse( content )
 
-# ----------------------------------------------- 4 ---
+# ----------------------------------------------------------------------------- 4 ---
 for line in finContent:
 	if line != "Memento Mori":
 		Read( line )
@@ -99,4 +109,4 @@ elif lastToken == "est":
 # condicio sine qua non --> if
 # advanse NUMBER legions --> cell += NUMBER
 # retreat NUMBER legions --> cell -= NUMBER
-#FUTURE Supertempore Martio -> go to §Martio "coords" until finish coords
+# Supertempore Martio -> go to §Martio "coords" until finish coords
