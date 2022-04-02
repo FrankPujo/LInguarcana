@@ -1,4 +1,4 @@
-# LInguarcana
+# Linguarcana
 **Esoteric programming language with a text in Latin as the code.**  
 The first line of Linguarcana code shall start with *de* followed by the program's name or short desctription as the header. Here the example file's header:  
 > De Primo Exemplo
