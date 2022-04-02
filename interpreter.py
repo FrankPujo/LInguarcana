@@ -14,7 +14,9 @@ sections = whole.split( "\nMense " )
 # initialize cell array
 cellArr = [0] * 64
 # cell pointer
-I = 0
+ptr = 0
+# temporary variable
+temp = 0
 
 # month sections
 months = {
@@ -48,7 +50,7 @@ finContent = []
 
 # ----------------------------------------------------------------------------- 3 ---
 # section parsing function
-def Parse( thing ):
+def parse( thing ):
 	# modify content removing months
 	lines = thing.split("\n")
 	month = lines[0]
@@ -63,30 +65,51 @@ def Parse( thing ):
 	monthLinks.update({ month: coords })
 
 # ----------------------------------------------------------------------------- 5 ---
-def Read( line ):
+def read( line ):
+	global ptr
+	global temp
 	# divide in tokens (words)
 	tokens = line.split(" ")
 	# useful variables
 	lenght = len(tokens)
 	firstToken = tokens[0]
 	lastToken = tokens[-1]
-	if " ".join(tokens[-7:-1]) == "Gallia est omnis divisa in partes":
-		divisor = lastToken
-		cellArr[I] /= roman.fromRoman( divisor )
-		cellArr[I] = math.floor( cellArr[I] )
+	if " ".join(tokens[0:6]) == "Gallia est omnis divisa in partes":
+		if " ".join( tokens[lenght-2:lenght] ) == "illo numero":
+			divisor = temp
+		else:
+			divisor = roman.fromRoman( lastToken )
+		cellArr[ptr] /= divisor
+		cellArr[ptr] = math.floor( cellArr[ptr] )
 	elif line == "Carthago delenda est":
-		cellArr[I] = 255
+		cellArr[ptr] = 256
 	elif line == "Ipse dixit":
-		print(cellArr[I])
+		print(cellArr[ptr])
 	elif firstToken == "Incedo":
-		if lastToken == "legionibus":
-			adder = tokens[-2]
-			cellArr[I] += roman.fromRoman( adder )
-			cellArr[I] = cellArr[I] % 255
-		#elif lastToken == SOMETHING ELSE:
-			# move pointer forward
-	#elif firstToken == RETREAT:
-		#legionibus or SOME ELSE?
+		if lastToken == "legionibus" or lastToken == "legione":
+			if " ".join( tokens[-3:-1] ) == "illo numero":
+				adder = temp
+			else:
+				adder = roman.fromRoman( tokens[-2] )
+			cellArr[ptr] += adder
+			cellArr[ptr] = cellArr[ptr] % 255
+		elif lastToken == "miliariis" or lastToken == "miliario":
+			ptr += 1
+			ptr = ptr % 64
+	elif firstToken == "Retrocedo":
+		if lastToken == "legionibus" or lastToken == "legione":
+			if " ".join( tokens[-3:-1] ) == "illo numero":
+				subtracter = temp
+			else:
+				subtracter = roman.fromRoman( tokens[-2] )
+			cellArr[ptr] -= subtracter
+			cellArr[ptr] = abs( cellArr[ptr] )
+		elif lastToken == "miliariis" or lastToken == "miliario":
+			ptr -= 1
+			if ptr < 0:
+				ptr += 64
+	elif line == "Hic est":
+		temp = cellArr[ptr]
 
 # ----------------------------------------------------------------------------- 1 ---
 # fill the sections in dictionary with the right content
@@ -106,22 +129,16 @@ for section in months:
 	# and parse them momentarily
 	content = months.get(section)
 	if content != "":
-		Parse( content )
+		parse( content )
 
 # ----------------------------------------------------------------------------- 4 ---
 for line in finContent:
 	if line == "Memento Mori":
 		break
 	else:
-		Read( line )
+		read( line )
 
-"""
-elif lastToken == "est":
-	print( "cell definition" )
-"""
 # dum ... -> while
 # aut ... aut ... --> xor
 # condicio sine qua non --> if
-# advanse NUMBER legions --> cell += NUMBER
-# retreat NUMBER legions --> cell -= NUMBER
 # Supertempore Martio -> go to §Martio "coords" until finish coords
