@@ -44,7 +44,9 @@ monthLinks = {
 	"Decembre": ""
 }
 # list for character conversion when printing (and inputting in future)
-#conversion = [ 
+convList = ["a","b","c","d","e","f","g","h","i","k","l","m","n","o","p","q","r","s","t","u","x","y","z","A","B","C","D","E","F","G","H","I","K","L","M","N","O","P","Q","R","S","T","V","X","Y","Z"]
+backList = {"a": 0,"b": 1,"c": 2,"d": 3,"e": 4,"f": 5,"g": 6,"h": 7,"i": 8,"k": 9,"l": 10,"m": 11,"n": 12,"o": 13,"p": 14,"q": 15,"r": 16,"s": 17,"t": 18,"u": 19,"x": 20,"y": 21,"z": 22,
+			"A": 23,"B": 24,"C": 25,"D": 26,"E": 27,"F": 28,"G": 29,"H": 30,"I": 31,"K": 32,"L": 33,"M": 34,"N": 35,"O": 36,"P": 37,"Q": 38,"R": 39,"S": 40,"T": 41,"V": 42,"X": 43,"Y": 44,"Z": 45}
 # initialize list
 finContent = []
 
@@ -85,6 +87,19 @@ def read( line ):
 		cellArr[ptr] = 256
 	elif line == "Ipse dixit":
 		print(cellArr[ptr])
+	elif line == "Non ducor, duco":
+		# shift value to the next cell
+		newPtr = (ptr + 1) %64
+		cellArr[newPtr] = cellArr[ptr]
+		cellArr[ptr] = 0
+	elif line == "Verba volant, scripta manent":
+		num = cellArr[ptr] % 46
+		letter = convList[num]
+		cellArr[ptr] = letter
+	elif line == "Non loqui sed facere":
+		letter = cellArr[ptr]
+		num = backList.get( letter )
+		cellArr[ptr] = num
 	elif firstToken == "Incedo":
 		if lastToken == "legionibus" or lastToken == "legione":
 			if " ".join( tokens[-3:-1] ) == "illo numero":
@@ -135,10 +150,10 @@ for section in months:
 for line in finContent:
 	if line == "Memento Mori":
 		break
-	else:
+	elif line[0:10] != "Commentari":
 		read( line )
 
 # dum ... -> while
 # aut ... aut ... --> xor
 # condicio sine qua non --> if
-# Supertempore Martio -> go to §Martio "coords" until finish coords
+# Supertempore Martio -> go to Martio "coords" until finish coords
