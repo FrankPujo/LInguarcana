@@ -10,6 +10,7 @@ src = open( sys.argv[1], "r" )
 # identify sections
 whole = "".join( x for x in src )
 sections = whole.split( "\nMense " )
+run = True
 
 # initialize cell array
 cellArr = [0] * 64
@@ -70,13 +71,19 @@ def parse( thing ):
 def read( line ):
 	global ptr
 	global temp
+	global run
 	# divide in tokens (words)
 	tokens = line.split(" ")
 	# useful variables
 	lenght = len(tokens)
 	firstToken = tokens[0]
 	lastToken = tokens[-1]
-	if " ".join(tokens[0:6]) == "Gallia est omnis divisa in partes":
+	if line == "Memento Mori":
+		run = False
+		pass
+	elif run == False:
+		pass
+	elif " ".join(tokens[0:6]) == "Gallia est omnis divisa in partes":
 		if " ".join( tokens[lenght-2:lenght] ) == "illo numero":
 			divisor = temp
 		else:
@@ -84,12 +91,12 @@ def read( line ):
 		cellArr[ptr] /= divisor
 		cellArr[ptr] = math.floor( cellArr[ptr] )
 	elif line == "Carthago delenda est":
-		cellArr[ptr] = 256
+		cellArr[ptr] = 255
 	elif line == "Ipse dixit":
 		print(cellArr[ptr])
 	elif line == "Non ducor, duco":
 		# shift value to the next cell
-		newPtr = (ptr + 1) %64
+		newPtr = (ptr + 1) % 64
 		cellArr[newPtr] = cellArr[ptr]
 		cellArr[ptr] = 0
 	elif line == "Verba volant, scripta manent":
@@ -150,6 +157,12 @@ for section in months:
 for line in finContent:
 	if line == "Memento Mori":
 		break
+	elif line[0:12] == "Supertempore":
+		toks = line.split(" ")
+		loopMonth = toks[1]
+		loopLines = monthLinks.get( loopMonth )
+		for loopLine in loopLines:
+			read( finContent[loopLine] )
 	elif line[0:10] != "Commentari":
 		read( line )
 
