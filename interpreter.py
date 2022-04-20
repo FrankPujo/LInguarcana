@@ -2,6 +2,7 @@
 
 import sys
 import math
+import random
 # roman module to read nmerals
 import roman
 
@@ -90,6 +91,13 @@ def read( line ):
 			divisor = roman.fromRoman( lastToken )
 		cellArr[ptr] /= divisor
 		cellArr[ptr] = math.floor( cellArr[ptr] )
+	elif " ".join(tokens[0:5]) == "Entia non sunt multiplicanda praeter":
+		if " ".join( tokens[lenght-2:lenght] ) == "illo numero":
+			multiplicator = temp
+		else:
+			multiplicator = roman.fromRoman( lastToken )
+			cellArr[ptr] *= multiplicator
+			cellArr[ptr] = cellArr[ptr] % 255
 	elif line == "Carthago delenda est":
 		cellArr[ptr] = 255
 	elif line == "Ipse dixit":
@@ -103,7 +111,7 @@ def read( line ):
 		num = cellArr[ptr] % 46
 		letter = convList[num]
 		cellArr[ptr] = letter
-	elif line == "Non loqui sed facere":
+	elif line == "Non loqui sed facere" or line == "Acta, non verba":
 		letter = cellArr[ptr]
 		num = backList.get( letter )
 		cellArr[ptr] = num
@@ -132,6 +140,11 @@ def read( line ):
 				ptr += 64
 	elif line == "Hic est":
 		temp = cellArr[ptr]
+	elif line == "Quo fata ferunt":
+		cellArr[ptr] = random.randrange(1, 256)
+	elif line == "Nulla rem natam":
+		cellArr[ptr] = 0
+		
 
 # ----------------------------------------------------------------------------- 1 ---
 # fill the sections in dictionary with the right content
@@ -169,4 +182,3 @@ for line in finContent:
 # dum ... -> while
 # aut ... aut ... --> xor
 # condicio sine qua non --> if
-# Supertempore Martio -> go to Martio "coords" until finish coords
